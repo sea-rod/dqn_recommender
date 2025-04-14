@@ -1,0 +1,21 @@
+# config/training_config.yaml
+
+env:
+  num_users: 100
+  num_items: 50
+  history_length: 10
+
+agent:
+  gamma: 0.99
+  epsilon_start: 1.0
+  epsilon_min: 0.05
+  epsilon_decay: 0.995
+  lr: 0.001
+  buffer_capacity: 10000
+  batch_size: 64
+  target_update_freq: 10
+
+train:
+  episodes: 1000
+  log_interval: 10
+  save_model_path: models/dqn_model.pth
