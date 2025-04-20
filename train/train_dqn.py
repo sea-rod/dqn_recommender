@@ -17,13 +17,12 @@ def main():
     train_cfg = config["train"]
 
     env = RecommendationEnv(
-        num_users=env_cfg["num_users"],
-        num_items=env_cfg["num_items"],
         history_length=env_cfg["history_length"],
     )
 
+    env.load_data()
     state_size = env_cfg["history_length"]
-    action_size = env_cfg["num_items"]
+    action_size = env.num_items
 
     model = QNetwork(state_size, action_size)
     agent = DQNAgent(

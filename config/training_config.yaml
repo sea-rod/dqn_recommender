@@ -1,9 +1,7 @@
 # config/training_config.yaml
 
 env:
-  num_users: 100
-  num_items: 50
-  history_length: 10
+  history_length: 5
 
 agent:
   gamma: 0.99
@@ -16,6 +14,6 @@ agent:
   target_update_freq: 10
 
 train:
-  episodes: 1000
+  episodes: 100
   log_interval: 10
   save_model_path: models/dqn_model.pth

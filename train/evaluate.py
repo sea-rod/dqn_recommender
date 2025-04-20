@@ -20,20 +20,29 @@ def evaluate(model_path, episodes=100, top_k=5):
 
     for _ in range(episodes):
         state = env.reset()
-        with torch.no_grad():
-            q_values = model(torch.FloatTensor(state).unsqueeze(0))
-        top_actions = torch.topk(q_values, top_k).indices.squeeze(0).numpy()
+        done = False
+        while not done:
+            with torch.no_grad():
+                q_values = model(torch.FloatTensor(state).unsqueeze(0))
+                top_actions = (
+                    torch.topk(q_values, top_k, dim=1).indices.squeeze(0).cpu().numpy()
+                )
 
-        relevant_items = [
-            np.argmax(
-                np.dot(env.user_profiles[env.current_user], env.item_embeddings.T)
-            )
-        ]
-        precision = precision_at_k(top_actions, relevant_items, top_k)
-        ndcg = ndcg_at_k(top_actions, relevant_items, top_k)
+            next_state, reward, done, _ = env.step(top_actions)
 
-        precision_list.append(precision)
-        ndcg_list.append(ndcg)
+            # True item the user interacted with
+            actual_item = env.user_item_dict[env.current_user][
+                env.interaction_index - 1
+            ][0]
+            relevant_items = [actual_item]  # ground truth item
+
+            precision = precision_at_k(top_actions, relevant_items, top_k)
+            ndcg = ndcg_at_k(top_actions, relevant_items, top_k)
+
+            precision_list.append(precision)
+            ndcg_list.append(ndcg)
+
+            state = next_state
 
     print(f"Avg Precision@{top_k}: {np.mean(precision_list):.4f}")
     print(f"Avg nDCG@{top_k}: {np.mean(ndcg_list):.4f}")
